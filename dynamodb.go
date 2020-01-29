@@ -16,15 +16,15 @@ type DynamoDb struct {
 }
 
 type item struct {
-	PKey     string `dynamodbav:"PartitionKey"`
-	Key      string `dynamodbav:"SortKey"`
+	PKey     string `dynamodbav:"PKey"`
+	Key      string `dynamodbav:"SKey"`
 	Value    []byte
 	Modified time.Time
 }
 
 func NewDynamoDb(api dynamodbiface.DynamoDBAPI, table string) *DynamoDb {
 	return &DynamoDb{
-		api: api,
+		api:   api,
 		table: table,
 	}
 }
@@ -75,10 +75,10 @@ func (d *DynamoDb) List(prefix string, recursive bool) ([]string, error) {
 	err := d.api.QueryPages(&dynamodb.QueryInput{
 		TableName:              &d.table,
 		ConsistentRead:         aws.Bool(true),
-		KeyConditionExpression: aws.String("PartitionKey = :PartitionKey AND begins_with(SortKey, :SortKeyPrefix)"),
+		KeyConditionExpression: aws.String("PKey = :PKey AND begins_with(SKey, :SKeyPrefix)"),
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-			":PartitionKey":  {S: aws.String("pk")},
-			":SortKeyPrefix": {S: &prefix},
+			":PKey":       {S: aws.String("pk")},
+			":SKeyPrefix": {S: &prefix},
 		},
 	}, func(page *dynamodb.QueryOutput, lastPage bool) bool {
 		items := []item{}
@@ -124,7 +124,7 @@ func (d *DynamoDb) get(key string) (*item, error) {
 
 func ddbKey(key string) map[string]*dynamodb.AttributeValue {
 	return map[string]*dynamodb.AttributeValue{
-		"PartitionKey": {S: aws.String("pk")},
-		"SortKey":      {S: &key},
+		"PKey": {S: aws.String("pk")},
+		"SKey": {S: &key},
 	}
 }
