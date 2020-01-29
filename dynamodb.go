@@ -1,7 +1,6 @@
 package awscertmagic
 
 import (
-	"cirello.io/dynamolock"
 	"errors"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -14,7 +13,6 @@ import (
 type DynamoDb struct {
 	api   dynamodbiface.DynamoDBAPI
 	table string
-	locker dynamolock.Client
 }
 
 type item struct {
